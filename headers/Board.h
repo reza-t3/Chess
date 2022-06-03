@@ -5,6 +5,7 @@
 using namespace std;
 
 class Board {
+public:
     Square square[8][8];
 	Color turn = WHITE;
     bool moveKing(Square*, Square*);
@@ -17,7 +18,6 @@ class Board {
     bool isInCheck(Color);
     bool checkMate(Color);
     void printBoard();
-public:
     Square* getSquare(int, int);
     bool Move();
     void setBoard();
