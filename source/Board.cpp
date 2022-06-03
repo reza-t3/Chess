@@ -297,10 +297,6 @@ Square* Board::getSquare(int x, int y) {
 		return &square[y][x];
 	}
 
-void Board::setSquare(Square* s, int x, int y){
-    square[y][x] = *s;
-}
-
 bool Board::Move() {
     Color tempC;
     Piece tempP;
