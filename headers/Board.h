@@ -19,7 +19,6 @@ class Board {
     void printBoard();
 public:
     Square* getSquare(int, int);
-    void setSquare(Square*, int, int);
     bool Move();
     void setBoard();
     bool playGame();
