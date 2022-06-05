@@ -1,4 +1,175 @@
 #include "Board.h"
+#include <string>
+using namespace std;
+
+Board::Board(sf::RenderWindow* _window) : window(_window) {
+    this->window->setTitle("Chess");
+    this->window->setFramerateLimit(60);
+}
+
+void Board::init() {
+    finish = false;
+    this->cells.resize(8);
+    for (int row = 0; row < 8; row++) {
+        this->cells[row].resize(8);
+        for (int column = 0; column < 8; column++) {
+            this->cells[row][column].rect.setSize(sf::Vector2f(100, 100));
+            if ((row + column) % 2 == 0)
+                this->cells[row][column].rect.setFillColor(sf::Color::White);
+            else
+                this->cells[row][column].rect.setFillColor(sf::Color::Black);
+            this->cells[row][column].rect.setPosition(sf::Vector2f((column*(100)), row*(100)));
+        }
+    }
+    font.loadFromFile("resources/fonts/roboto.ttf");
+    status_text.setFont(font);
+    status_text.setCharacterSize(30);
+    status_text.setStyle(sf::Text::Regular);
+    status_text.setFillColor(sf::Color::Black);
+    status_text.setPosition(400.f, 80.f);
+}
+
+void Board::draw() {
+    for (int row = 0; row < 8; row++) {
+        for (int column = 0; column < 8; column++) {
+            this->window->draw(this->cells[row][column].rect);
+            if (square[row][column].getColor() != NONE)
+                this->window->draw(square[row][column].sprite);
+        }
+    }
+}
+
+void Board::run()
+{
+    this->init();
+    this->setBoard();
+    this->window->display();
+    while (this->window->isOpen()) {
+        sf::Event event;
+
+        while (this->window->pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                this->window->close();
+            }
+        }
+        this->window->clear(sf::Color(240, 248, 255));
+        this->draw();
+        this->window->display();
+    }
+}
+
+void Board::mouse_clicked(const sf::Vector2i& position) {
+    int row = position.y / 100;
+    int col = position.x / 100;
+    if (row <= 7 && col <= 7) {
+        if (pieces_selected[0] == -1) {
+            pieces_selected[0] = row;
+            pieces_selected[1] = col;
+            cells[row][col].rect.setFillColor(sf::Color::Blue);
+
+        }
+    }
+}
+
+void Board::setBoard() {
+    cout << "set your board:" << endl;
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            string p;
+            cin >> p;
+            if (p == "PB") {
+                square[row][col].setPieceAndColor(PAWN, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackPawn.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "KB") {
+                square[row][col].setPieceAndColor(KING, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackKing.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "RB") {
+                square[row][col].setPieceAndColor(ROOK, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackRook.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "NB") {
+                square[row][col].setPieceAndColor(KNIGHT, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackKnight.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "BB") {
+                square[row][col].setPieceAndColor(BISHOP, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackBishop.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "QB") {
+                square[row][col].setPieceAndColor(QUEEN, BLACK);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/BlackQueen.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "PW") {
+                square[row][col].setPieceAndColor(PAWN, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhitePawn.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "KW") {
+                square[row][col].setPieceAndColor(KING, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhiteKing.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "RW") {
+                square[row][col].setPieceAndColor(ROOK, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhiteRook.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "NW") {
+                square[row][col].setPieceAndColor(KNIGHT, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhiteKnight.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "BW") {
+                square[row][col].setPieceAndColor(BISHOP, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhiteBishop.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else if (p == "QW") {
+                square[row][col].setPieceAndColor(QUEEN, WHITE);
+                square[row][col].sprite.setPosition(sf::Vector2f(col * 100, row * 100));
+                textures[row][col].loadFromFile("resources/images2/WhiteQueen.png");
+                square[row][col].sprite.setTexture(textures[row][col]);
+            }
+            else
+                square[row][col].setPieceAndColor(EMPTY, NONE);
+                
+        }
+    }
+    cout << "which color starts? (w for white, b for black)" << endl;
+    string c;
+    while (true) {
+        cin >> c;
+        if (c == "w") {
+            turn = WHITE;
+            break;
+        }
+        else if (c == "b") {
+            turn = BLACK;
+            break;
+        }
+        else
+            cout << "wrong input!try again" << endl;
+    }
+}
 
 bool Board::moveKing(Square* currentPlace, Square* nextPlace) {
         if (abs(nextPlace->getX() - currentPlace->getX()) <= 1) {
@@ -181,7 +352,7 @@ bool Board::isLegal(int x1, int y1, int x2, int y2) {
         return false;
 }
 
-bool Board::isInCheck(Color c) {
+bool Board::isInCheck(myColor c) {
     int xKIng, yKing;
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -206,8 +377,8 @@ bool Board::isInCheck(Color c) {
     return false;
 }
 
-bool Board::checkMate(Color c) {
-    Color tempC;
+bool Board::checkMate(myColor c) {
+    myColor tempC;
     Piece tempP;
     int xKIng, yKing;
     for (int row = 0; row < 8; row++) {
@@ -273,7 +444,7 @@ void Board::printBoard() {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             Piece p = square[row][col].getPiece();
-            Color c = square[row][col].getColor();
+            myColor c = square[row][col].getColor();
             if (p == KING)
                 (c == WHITE) ? cout << "KW " : cout << "KB ";
             else if (p == QUEEN)
@@ -298,12 +469,12 @@ Square* Board::getSquare(int x, int y) {
 	}
 
 bool Board::Move() {
-    Color tempC;
+    myColor tempC;
     Piece tempP;
     string move;
     int x1, x2, y1, y2;
     while (true) {
-        //(turn == WHITE) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
+        (turn == WHITE) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
         cin >> move;
         if (move == "fin") {
             if (turn == BLACK) {
@@ -371,40 +542,6 @@ bool Board::Move() {
     return true;
 }
 
-void Board::setBoard() {
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            string p;
-            cin >> p;
-            if (p == "PB")
-                square[row][col].setPieceAndColor(PAWN, BLACK);
-            else if (p == "KB")
-                square[row][col].setPieceAndColor(KING, BLACK);
-            else if (p == "RB")
-                square[row][col].setPieceAndColor(ROOK, BLACK);
-            else if (p == "NB")
-                square[row][col].setPieceAndColor(KNIGHT, BLACK);
-            else if (p == "BB")
-                square[row][col].setPieceAndColor(BISHOP, BLACK);
-            else if (p == "QB")
-                square[row][col].setPieceAndColor(QUEEN, BLACK);
-            else if (p == "PW")
-                square[row][col].setPieceAndColor(PAWN, WHITE);
-            else if (p == "KW")
-                square[row][col].setPieceAndColor(KING, WHITE);
-            else if (p == "RW")
-                square[row][col].setPieceAndColor(ROOK, WHITE);
-            else if (p == "NW")
-                square[row][col].setPieceAndColor(KNIGHT, WHITE);
-            else if (p == "BW")
-                square[row][col].setPieceAndColor(BISHOP, WHITE);
-            else if (p == "QW")
-                square[row][col].setPieceAndColor(QUEEN, WHITE);
-            else
-                square[row][col].setPieceAndColor(EMPTY, NONE);
-        }
-    }
-}
 
 bool Board::playGame() {
     //printBoard();

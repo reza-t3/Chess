@@ -1,23 +1,23 @@
 #pragma once
 
 #include <iostream>
-#include <string>
-using namespace std;
+#include <SFML/Graphics.hpp>
 
 enum Piece { KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, EMPTY };
-enum Color { WHITE, BLACK, NONE };
+enum myColor { WHITE, BLACK, NONE };
 
 class Square {
-    Piece piece;
-	Color color;
-	int x, y;
 public:
+    Piece piece;
+	myColor color;
+	int x, y;
+    sf::Sprite sprite;
     Square();
     void setSpace(Square*);
     void setEmpty();
-    void setPieceAndColor(Piece, Color);
+    void setPieceAndColor(Piece, myColor);
     Piece getPiece();
-    Color getColor();
+    myColor getColor();
     void setX(int);
     void setY(int);
     int getX();
