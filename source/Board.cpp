@@ -26,7 +26,8 @@ void Board::init() {
     status_text.setCharacterSize(30);
     status_text.setStyle(sf::Text::Regular);
     status_text.setFillColor(sf::Color::Black);
-    status_text.setPosition(400.f, 80.f);
+    status_text.setPosition(810.f, 20.f);
+    (turn == WHITE) ? status_text.setString("White's Turn") : status_text.setString("Black's Turn");
 }
 
 void Board::draw() {
@@ -37,25 +38,26 @@ void Board::draw() {
                 this->window->draw(square[row][column].sprite);
         }
     }
+    window->draw(status_text);
 }
 
 void Board::run() {
-    this->init();
-    this->setBoard();
-    this->window->display();
-    while (this->window->isOpen()) {
+    setBoard();
+    init();
+    window->display();
+    while (window->isOpen()) {
         sf::Event event;
 
-        while (this->window->pollEvent(event)) {
+        while (window->pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
-                this->window->close();
+                window->close();
             }
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                this->mouse_clicked(sf::Mouse::getPosition(*(this->window)));
+                mouse_clicked(sf::Mouse::getPosition(*window));
         }
-        this->window->clear(sf::Color(90,90,90));
-        this->draw();
-        this->window->display();
+        window->clear(sf::Color(90,90,90));
+        draw();
+        window->display();
         }
     }
 }
