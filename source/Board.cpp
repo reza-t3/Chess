@@ -578,3 +578,4 @@ Square* Board::getSquare(int x, int y) {
 		return &square[y][x];
 	}
 
+
