@@ -20,6 +20,9 @@ public:
     void init();
     void draw();
     void mouse_clicked(const sf::Vector2i& position);
+    void legalMoves(int row, int col);
+    void legalMovesBack(int row, int col);
+    void setBoard();
     bool moveKing(Square*, Square*);
     bool moveQueen(Square*, Square*);
     bool moveBishop(Square*, Square*);
@@ -31,7 +34,5 @@ public:
     bool checkMate(myColor);
     void printBoard();
     Square* getSquare(int, int);
-    bool Move();
-    void setBoard();
-    bool playGame();
+    void Move(int x1, int x2, int y1, int y2);
 };
