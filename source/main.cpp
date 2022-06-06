@@ -1,14 +1,11 @@
 #include "Board.h"
 
-#include <iostream>
+using namespace sf;
 using namespace std;
 
-int main()
-{
-	Board b;
-	string s;
-	b.setBoard();
-	while (b.playGame())
-        continue;
+int main() {
+	RenderWindow window(VideoMode(1080, 800), "Chess", Style::Titlebar | Style::Close);
+	Board board(&window);
+	board.run();
 	return 0;
 }

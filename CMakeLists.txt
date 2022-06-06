@@ -16,3 +16,8 @@ add_executable(${PROJECT_NAME}
     ${SRC_DIRECTORY}/main.cpp
     ${SOURCES})
 
+target_link_libraries(${PROJECT_NAME}
+    sfml-system
+    sfml-window
+    sfml-graphics)
+

@@ -15,7 +15,7 @@ void Square::setEmpty() {
 	    piece = EMPTY;
     }
 
-void Square::setPieceAndColor(Piece p, Color c) {
+void Square::setPieceAndColor(Piece p, myColor c) {
         piece = p;
 	    color = c;
     }
@@ -24,7 +24,7 @@ Piece Square::getPiece() {
         return piece;
     }
 
-Color Square::getColor() {
+myColor Square::getColor() {
         return color;
     }
 

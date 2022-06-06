@@ -1,13 +1,25 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include "Square.h"
-#include <iostream>
-using namespace std;
+#include "Cell.h"
 
 class Board {
 public:
+    Board(sf::RenderWindow* _window);
+    sf::RenderWindow* window;
     Square square[8][8];
-	Color turn = WHITE;
+    sf::Texture textures[8][8];
+	myColor turn;
+    sf::Font font;
+    bool finish;
+    sf::Text status_text;
+    Cells cells;
+    int pieces_selected[2] = {-1, -1};
+    void run();
+    void init();
+    void draw();
+    void mouse_clicked(const sf::Vector2i& position);
     bool moveKing(Square*, Square*);
     bool moveQueen(Square*, Square*);
     bool moveBishop(Square*, Square*);
@@ -15,8 +27,8 @@ public:
     bool moveRook(Square*, Square*);
     bool movePawn(Square*, Square*);
     bool isLegal(int, int, int, int);
-    bool isInCheck(Color);
-    bool checkMate(Color);
+    bool isInCheck(myColor);
+    bool checkMate(myColor);
     void printBoard();
     Square* getSquare(int, int);
     bool Move();
