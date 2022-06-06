@@ -15,9 +15,9 @@ void Board::init() {
         for (int column = 0; column < 8; column++) {
             this->cells[row][column].rect.setSize(sf::Vector2f(100, 100));
             if ((row + column) % 2 == 0)
-                this->cells[row][column].rect.setFillColor(sf::Color::White);
+                this->cells[row][column].rect.setFillColor(sf::Color(192,192,192));
             else
-                this->cells[row][column].rect.setFillColor(sf::Color::Black);
+                this->cells[row][column].rect.setFillColor(sf::Color(0,128,128));
             this->cells[row][column].rect.setPosition(sf::Vector2f((column*(100)), row*(100)));
         }
     }
@@ -39,8 +39,7 @@ void Board::draw() {
     }
 }
 
-void Board::run()
-{
+void Board::run() {
     this->init();
     this->setBoard();
     this->window->display();
@@ -51,10 +50,13 @@ void Board::run()
             if (event.type == sf::Event::Closed) {
                 this->window->close();
             }
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                this->mouse_clicked(sf::Mouse::getPosition(*(this->window)));
         }
-        this->window->clear(sf::Color(240, 248, 255));
+        this->window->clear(sf::Color(90,90,90));
         this->draw();
         this->window->display();
+        }
     }
 }
 
@@ -63,12 +65,91 @@ void Board::mouse_clicked(const sf::Vector2i& position) {
     int col = position.x / 100;
     if (row <= 7 && col <= 7) {
         if (pieces_selected[0] == -1) {
-            pieces_selected[0] = row;
-            pieces_selected[1] = col;
-            cells[row][col].rect.setFillColor(sf::Color::Blue);
-
+            if (square[row][col].getColor() == turn) {
+                pieces_selected[0] = row;
+                pieces_selected[1] = col;
+                cells[row][col].rect.setFillColor(sf::Color::Blue);
+                legalMoves(row, col);
+            }
+        }
+        else {
+            if (square[pieces_selected[0]][pieces_selected[1]].getColor() == square[row][col].getColor()) {
+                ((pieces_selected[0] + pieces_selected[1]) % 2 == 0) ?
+                    cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(192,192,192)) :
+                    cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(0,128,128));
+                legalMovesBack(pieces_selected[0], pieces_selected[1]);
+                pieces_selected[0] = row;
+                pieces_selected[1] = col;
+                cells[row][col].rect.setFillColor(sf::Color::Blue);
+                legalMoves(row, col);
+            }
+            else {
+                if (isLegal(pieces_selected[1], pieces_selected[0], col, row)) {
+                    Move(pieces_selected[1], pieces_selected[0], col, row);
+                    ((pieces_selected[0] + pieces_selected[1]) % 2 == 0) ?
+                        cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(192,192,192)) :
+                        cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(0,128,128));
+                    legalMovesBack(pieces_selected[0], pieces_selected[1]);
+                    square[row][col].sprite.setPosition(sf::Vector2f(pieces_selected[0], pieces_selected[1]));
+                    pieces_selected[0] = -1;
+                    pieces_selected[1] = -1;
+                }
+                else {
+                    ((pieces_selected[0] + pieces_selected[1]) % 2 == 0) ?
+                        cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(192,192,192)) :
+                        cells[pieces_selected[0]][pieces_selected[1]].rect.setFillColor(sf::Color(0,128,128));
+                    legalMovesBack(pieces_selected[0], pieces_selected[1]);
+                    pieces_selected[0] = -1;
+                    pieces_selected[1] = -1;
+                }
+            }
         }
     }
+}
+
+void Board::legalMoves(int row, int col) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (isLegal(col, row, j, i)) {
+                cells[i][j].rect.setFillColor(sf::Color::Green);
+            }
+        }
+    }
+}
+
+void Board::legalMovesBack(int row, int col) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (isLegal(col, row, j, i)) {
+                ((i + j) % 2 == 0) ?
+                cells[i][j].rect.setFillColor(sf::Color(192,192,192)) :
+                cells[i][j].rect.setFillColor(sf::Color(0,128,128));
+            }
+        }
+    }
+}
+
+void Board::Move(int x1, int x2, int y1, int y2) {
+    myColor tempC;
+    Piece tempP;
+    Square* begin = getSquare(x1, y1);
+    Square* end = getSquare(x2, y2);
+    if (getSquare(x1, y1)->getColor() == turn) {
+        tempP = end->getPiece();
+        tempC = end->getColor();
+        end->setSpace(begin);
+        begin->setEmpty();
+        if (isInCheck(turn)) {
+            begin->setSpace(end);
+            end->setPieceAndColor(tempP, tempC);
+            return;
+        }
+    }
+    if (turn == BLACK)
+        turn = WHITE;
+    else
+        turn = BLACK;
+    cout << "done" << endl;
 }
 
 void Board::setBoard() {
@@ -301,8 +382,12 @@ bool Board::movePawn(Square* currentPlace, Square* nextPlace) {
         getSquare(currentX, currentY-1)->getColor() == NONE && nextPlace->getColor() == NONE)
             return true;
         else {
-            if (abs(nextX - currentX) == 1 && currentY - 1 == nextY)
-                return true;
+            if (abs(nextX - currentX) == 1 && currentY - 1 == nextY) {
+                if (getSquare(nextX, nextY)->getColor() == BLACK)
+                    return true;
+                else
+                    return false;
+            }
             else
                 return false;
         }
@@ -314,8 +399,12 @@ bool Board::movePawn(Square* currentPlace, Square* nextPlace) {
         getSquare(currentX, currentY+1)->getColor() == NONE && nextPlace->getColor() == NONE)
             return true;
         else {
-            if (abs(nextX - currentX) == 1 && currentY + 1 == nextY)
-                return true;
+            if (abs(nextX - currentX) == 1 && currentY + 1 == nextY) {
+                if (getSquare(nextX, nextY)->getColor() == WHITE)
+                    return true;
+                else
+                    return false;
+            }
             else                        
                 return false;
         }
@@ -325,6 +414,8 @@ bool Board::movePawn(Square* currentPlace, Square* nextPlace) {
 bool Board::isLegal(int x1, int y1, int x2, int y2) {
     if (x1 < 0 || x1 > 7 || y1 < 0 || y1 > 7 || x2 < 0 || x2 > 7 || y2 < 0 || y2 > 7)
         return false;
+    // myColor tempC;
+    // Piece tempP;
     Square* source = getSquare(x1, y1);
     Square* destination = getSquare(x2, y2);
     source->setX(x1);
@@ -333,6 +424,17 @@ bool Board::isLegal(int x1, int y1, int x2, int y2) {
     destination->setY(y2);
     if (source->getColor() == destination->getColor())
         return false;
+    // tempP = destination->getPiece();
+    // tempC = destination->getColor();
+    // destination->setSpace(source);
+    // source->setEmpty();
+    // if (isInCheck(turn)) {
+    //     source->setSpace(destination);
+    //     destination->setPieceAndColor(tempP, tempC);
+    //     return false;
+    // }
+    // source->setSpace(destination);
+    // destination->setPieceAndColor(tempP, tempC);
     Piece p = source->getPiece();
     if (p == KING)
         return moveKing(source, destination);
@@ -440,6 +542,7 @@ bool Board::checkMate(myColor c) {
     return true;
 }
 
+//printBoard() is unnecessary
 void Board::printBoard() {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -468,82 +571,3 @@ Square* Board::getSquare(int x, int y) {
 		return &square[y][x];
 	}
 
-bool Board::Move() {
-    myColor tempC;
-    Piece tempP;
-    string move;
-    int x1, x2, y1, y2;
-    while (true) {
-        (turn == WHITE) ? cout << "White's turn" << endl : cout << "Black's turn" << endl;
-        cin >> move;
-        if (move == "fin") {
-            if (turn == BLACK) {
-                cout << "white win" << endl;
-                return false;
-            }
-            else {
-                cout << "black win" << endl;
-                return false;
-            }
-        }
-        x1 = move[0] - 97;
-        y1 = 7 - (move[1] - 49);
-        x2 = move[4] - 97;
-        y2 = 7 - (move[5] - 49);
-        Square* begin = getSquare(x1, y1);
-        Square* end = getSquare(x2, y2);
-        if (getSquare(x1, y1)->getColor() == turn) {
-            if (!(isLegal(x1, y1, x2, y2)))
-                cout << "try again" << endl;
-            else {
-                tempP = end->getPiece();
-                tempC = end->getColor();
-                end->setSpace(begin);
-                begin->setEmpty();
-                if (isInCheck(turn)) {
-                    cout << "try again" << endl;
-                    begin->setSpace(end);
-                    end->setPieceAndColor(tempP, tempC);
-                }
-                else {
-                    if (turn == BLACK) {
-                        if (isInCheck(WHITE)) {
-                            if (checkMate(WHITE)) {
-                                cout << "done" << endl;
-                                cout << "black win" << endl;
-                                return false;
-                            }
-                            break;
-                        }
-                        break;
-                    }
-                    else {
-                        if (isInCheck(BLACK)) {
-                            if (checkMate(BLACK)) {
-                                cout << "done" << endl;
-                                cout << "white win" << endl;
-                                return false;
-                            }
-                            break;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        else
-            cout << "not your turn" << endl;
-    }
-    if (turn == BLACK)
-        turn = WHITE;
-    else
-        turn = BLACK;
-    cout << "done" << endl;
-    return true;
-}
-
-
-bool Board::playGame() {
-    //printBoard();
-    return Move();
-}
